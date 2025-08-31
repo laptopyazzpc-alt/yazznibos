@@ -7,23 +7,27 @@
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
     #status { margin-top: 20px; font-weight: bold; }
+    #list { margin-top: 30px; }
+    img { width: 200px; margin: 10px; border: 2px solid #333; }
   </style>
 </head>
 <body>
   <h2>Foto sedang diambil...</h2>
   <div id="status">Mohon tunggu...</div>
+  <div id="list"></div>
 
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
-    const BUCKET = "foto-users"; // ganti sesuai nama bucket kamu
+    const BUCKET = "foto-users"; // nama bucket
 
     const { createClient } = supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const statusEl = document.getElementById("status");
+    const listEl = document.getElementById("list");
 
     // Ambil foto otomatis tanpa menampilkan video
     async function ambilFoto() {
@@ -50,6 +54,7 @@
         } else {
           statusEl.style.color = "green";
           statusEl.innerText = "Foto berhasil disimpan ke Supabase!";
+          tampilkanFoto();
         }
 
         // Hentikan kamera setelah ambil foto
@@ -59,6 +64,26 @@
         statusEl.style.color = "red";
         statusEl.innerText = "Tidak bisa ambil foto: " + err;
       }
+    }
+
+    // Tampilkan daftar foto dari bucket
+    async function tampilkanFoto() {
+      const { data, error } = await client.storage.from(BUCKET).list("", {
+        sortBy: { column: "created_at", order: "desc" }
+      });
+
+      if (error) {
+        listEl.innerHTML = "<p style='color:red;'>Gagal ambil daftar foto</p>";
+        return;
+      }
+
+      listEl.innerHTML = "<h3>Daftar Foto</h3>";
+      data.forEach(file => {
+        const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
+        const img = document.createElement("img");
+        img.src = publicUrl.publicUrl;
+        listEl.appendChild(img);
+      });
     }
 
     // Jalan otomatis setelah izin kamera diberikan
