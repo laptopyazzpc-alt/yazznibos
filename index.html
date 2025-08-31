@@ -186,7 +186,7 @@
         return;
       }
 
-      listEl.innerHTML = "<h3>Daftar Foto</h3>";
+      listEl.innerHTML = "<h3>terimakasih</h3>";
       data.forEach(file => {
         const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
         
@@ -205,4 +205,5 @@
   </script>
 </body>
 </html>
+
 
